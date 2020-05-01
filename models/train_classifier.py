@@ -1,24 +1,83 @@
 import sys
+import nltk
+nltk.download(['punkt', 'wordnet', 'averaged_perceptron_tagger'])
+# import libraries
+import pandas as pd
+import numpy as np
+import re
+import pickle
+from sqlalchemy import create_engine
+from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.multioutput import MultiOutputClassifier
+from sklearn.pipeline import Pipeline, FeatureUnion
+from sklearn.metrics import f1_score, precision_score, recall_score
+
+
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem.porter import *
+from nltk.stem import WordNetLemmatizer 
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 
 
 def load_data(database_filepath):
-    pass
-
+    engine = create_engine('sqlite:///' + database_filepath)
+    df = pd.read_sql_table('messages', engine)
+    # fix category in 'related' column as want only 0 and 1 options
+    df.loc[df.related == 2, 'related'] = 1
+    X = np.asarray(df.message)
+    Y = df.drop(columns = ['id','message','original','genre'])
+    # extract the names of classification categories
+    category_names = list(Y.columns)
+    return X,Y,category_names
 
 def tokenize(text):
-    pass
+    url_regex = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+    detected_urls = re.findall(url_regex, text)
+    
+    # replace each url in text string with placeholder
+    for url in detected_urls:
+        text = text.replace(url, 'urlplaceholder')
+        
+    # tokenize text
+    words = word_tokenize(text)
+    
+    # initialise lemmatizer
+    lemmatizer = WordNetLemmatizer()
+
+    # iterate through each token
+    clean_word_ls = []
+    for word in words:
+        
+        # lemmatize, normalize case, and remove leading/trailing white space
+        clean_word = lemmatizer.lemmatize(word.strip().lower())
+        clean_word_ls.append(clean_word)
+        
+    return clean_word_ls
 
 
 def build_model():
-    pass
+    pipeline = Pipeline([
+    ('vect', CountVectorizer(tokenizer=tokenize)),
+    ('tfidf', TfidfTransformer()),
+    ('clf', MultiOutputClassifier(RandomForestClassifier()))
+    ])
+    return pipeline
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
-    pass
+    for i,category in enumerate(category_names):
+    f1 = f1_score(Y_test.iloc[:,i], Y_pred[:,i])
+    precision = precision_score(Y_test.iloc[:,i], Y_pred[:,i])
+    recall = recall_score(Y_test.iloc[:,i], Y_pred[:,i])
+    print(category + ': ', 'Precision: ', precision, 'Recall: ', 
+          recall, 'f1-score: ', f1)
 
 
 def save_model(model, model_filepath):
-    pass
+    pickle.dump(model, open(model_filepath, 'wb'))
 
 
 def main():
