@@ -7,17 +7,14 @@ import numpy as np
 import re
 import pickle
 from sqlalchemy import create_engine
-from sklearn.metrics import accuracy_score, confusion_matrix
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.multioutput import MultiOutputClassifier
-from sklearn.pipeline import Pipeline, FeatureUnion
+from sklearn.pipeline import Pipeline
 from sklearn.metrics import f1_score, precision_score, recall_score
 
 
 from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
-from nltk.stem.porter import *
 from nltk.stem import WordNetLemmatizer 
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 
@@ -68,12 +65,13 @@ def build_model():
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
+    Y_pred = model.predict(X_test)
     for i,category in enumerate(category_names):
-    f1 = f1_score(Y_test.iloc[:,i], Y_pred[:,i])
-    precision = precision_score(Y_test.iloc[:,i], Y_pred[:,i])
-    recall = recall_score(Y_test.iloc[:,i], Y_pred[:,i])
-    print(category + ': ', 'Precision: ', precision, 'Recall: ', 
-          recall, 'f1-score: ', f1)
+        f1 = f1_score(Y_test.iloc[:,i], Y_pred[:,i])
+        precision = precision_score(Y_test.iloc[:,i], Y_pred[:,i])
+        recall = recall_score(Y_test.iloc[:,i], Y_pred[:,i])
+        print(category + ': ', 'Precision: ', precision, 'Recall: ', 
+              recall, 'f1-score: ', f1)
 
 
 def save_model(model, model_filepath):
