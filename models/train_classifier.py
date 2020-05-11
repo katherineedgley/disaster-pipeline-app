@@ -1,6 +1,6 @@
 import sys
 import nltk
-nltk.download(['punkt', 'wordnet', 'averaged_perceptron_tagger'])
+nltk.download(['punkt', 'wordnet', 'averaged_perceptron_tagger', 'stopwords'])
 # import libraries
 import pandas as pd
 import numpy as np
@@ -10,13 +10,49 @@ from sqlalchemy import create_engine
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.multioutput import MultiOutputClassifier
-from sklearn.pipeline import Pipeline
+from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.metrics import f1_score, precision_score, recall_score
+from sklearn.base import BaseEstimator, TransformerMixin
 
 
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer 
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+
+
+
+class StartingVerbExtractor(BaseEstimator, TransformerMixin):
+
+    def starting_verb(self, text):
+        sentence_list = nltk.sent_tokenize(text)
+        for sentence in sentence_list:
+            pos_tags = nltk.pos_tag(tokenize(sentence))
+            if len(pos_tags) > 0:
+                first_word, first_tag = pos_tags[0]
+                if first_tag in ['VB', 'VBP'] or first_word == 'RT':
+                    return True
+        return False
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        X_tagged = pd.Series(X).apply(self.starting_verb)
+        return pd.DataFrame(X_tagged)
+
+class OfferExtractor(BaseEstimator, TransformerMixin):
+
+    def contains_offer(self, text):
+        options = ['I can', 'I have', 'we have','we can', 'donate', 'give']
+        return any([s in text for s in options])
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        X_tagged = pd.Series(X).apply(self.contains_offer)
+        return pd.DataFrame(X_tagged)
+
 
 
 def load_data(database_filepath):
@@ -47,20 +83,35 @@ def tokenize(text):
     # iterate through each token
     clean_word_ls = []
     for word in words:
-        
-        # lemmatize, normalize case, and remove leading/trailing white space
-        clean_word = lemmatizer.lemmatize(word.strip().lower())
-        clean_word_ls.append(clean_word)
+        if not word in set(stopwords.words('english')):
+            # lemmatize, normalize case, and remove leading/trailing white space
+            clean_word = lemmatizer.lemmatize(word.strip().lower())
+            clean_word_ls.append(clean_word)
         
     return clean_word_ls
 
 
 def build_model():
     pipeline = Pipeline([
-    ('vect', CountVectorizer(tokenizer=tokenize)),
-    ('tfidf', TfidfTransformer()),
-    ('clf', MultiOutputClassifier(RandomForestClassifier()))
+        ('features', FeatureUnion([
+
+            ('text_pipeline', Pipeline([
+                ('vect', CountVectorizer(tokenizer=tokenize)),
+                ('tfidf', TfidfTransformer())
+            ])),
+
+            ('starting_verb', StartingVerbExtractor()),
+            ('offer', OfferExtractor())
+        ])),
+
+        ('clf', MultiOutputClassifier(RandomForestClassifier()))
     ])
+    params = { 'clf__estimator__min_samples_split': 3,
+        'clf__estimator__n_estimators': 100,
+        'features__text_pipeline__vect__max_df': 1.0,
+        'features__text_pipeline__vect__max_features': 10000}
+    
+    pipeline.set_params(**params)
     return pipeline
 
 
