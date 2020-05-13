@@ -50,6 +50,7 @@ def tokenize(text):
         
     return clean_word_ls
 
+
 app = Flask(__name__)
 
 # load data
@@ -93,11 +94,11 @@ def index():
     
     # Create first figure, a bar chart containing the highest word counts
     # in all the messages, to see what the most common words are
-    fig = px.bar(word_counts_df[:22].iloc[::-1], x = 'count', y='word',
+    fig1 = px.bar(word_counts_df[:22].iloc[::-1], x = 'count', y='word',
                  orientation='h', text = 'word')
-    fig.update_traces(texttemplate='%{text}', textposition='outside')
-    fig.update_traces(marker_color='#e1341e')
-    fig.update_layout(
+    fig1.update_traces(texttemplate='%{text}', textposition='outside')
+    fig1.update_traces(marker_color='#e1341e')
+    fig1.update_layout(
         title_text = "Most frequent words in messages",
         xaxis=dict(
             showticklabels=True,
@@ -122,7 +123,8 @@ def index():
                 'showlegend': False}
         }
 
-    figures = [fig,fig2]
+    figures = [fig1,fig2]
+    
     # encode plotly graphs in JSON
     ids = ["graph-{}".format(i) for i, _ in enumerate(figures)]
     graphJSON = json.dumps(figures, cls=plotly.utils.PlotlyJSONEncoder)

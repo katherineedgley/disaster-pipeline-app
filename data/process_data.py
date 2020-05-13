@@ -46,6 +46,12 @@ def tokenize(text):
 
 
 def load_data(messages_filepath, categories_filepath):
+    '''
+    Function to read in CSV files and merge them
+    Inputs both the filepath to CSV with message data and to CSV with
+    categories data
+    Outputs merged pandas dataframe
+    '''
     messages = pd.read_csv(messages_filepath)
     categories = pd.read_csv(categories_filepath)
     df = messages.merge(categories, on='id')
@@ -53,7 +59,9 @@ def load_data(messages_filepath, categories_filepath):
 
 def clean_data(df):
     '''
-    
+    Function that cleans and processes the dataframe with message
+    and corresponding category data. Cleans and removes duplicates
+    and adds column with tokenized messages for use in 
     '''
     # split each entry into a column
     categories = df.categories.str.split(';', expand=True)
@@ -78,6 +86,10 @@ def clean_data(df):
 
 
 def save_data(df, database_filename):
+    '''
+    Function to insert the cleaned dataframe into an SQL
+    database, with the dataset titled 'messages'
+    '''
     engine = create_engine('sqlite:///' + database_filename)
     df.to_sql('messages', engine, index=False)
 
