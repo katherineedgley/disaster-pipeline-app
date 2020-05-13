@@ -14,9 +14,19 @@ from flask import Flask
 from flask import render_template, request
 from plotly.graph_objs import Pie
 import plotly.express as px
-from sklearn.externals import joblib
+import joblib
 from sqlalchemy import create_engine
 from keras.preprocessing.text import Tokenizer
+
+import sys
+import os
+
+# code for allowing relative imports 
+PACKAGE_PARENT = '..'
+SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), 
+                                                           os.path.expanduser(__file__))))
+sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
+
 from models.train_classifier import ProperNounExtractor, OfferExtractor
 
 
