@@ -1,7 +1,8 @@
 # Disaster Response Pipeline 
-A machine learning pipeline for classifying messages into disaster response categories, deployed as a dashboard. \
-The dashboard looks like this: 
+A machine learning/NLP pipeline for classifying messages into disaster response categories, deployed as a dashboard. \
+The dashboard looks like this: \
 ![Sample Image](img/sample2.png)
+
 
 ## Table of Contents
 [1. Installation and Data](#installation-and-data) \
