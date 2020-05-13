@@ -1,5 +1,7 @@
 # Disaster Response Pipeline 
-A machine learning pipeline for classifying messages into disaster response categories, deployed as a dashboard.
+A machine learning pipeline for classifying messages into disaster response categories, deployed as a dashboard. \
+The dashboard looks like this: 
+![Sample Image](img/sample2.png)
 
 ## Table of Contents
 [1. Installation and Data](#installation-and-data) \
@@ -17,7 +19,8 @@ through Udacity Data Science Nano Degree, by [Figure Eight/Appen](https://appen.
 For this project, I aimed to build and tune a natural language processing pipeline in order to classify new messages into the relevant disaster response categories. The end goal was to create a dashboard/web app where new messages could be manually input and classified, using the classifier trained on the provided training data. 
 
 ## File Descriptions
-Files in this repository are organized as follows:
+Files in this repository (only those specific to the app) are organized as follows: \
+```
 ├── app
     ├── run.py              # File for rendering and running the web-app
     ├── templates
@@ -32,6 +35,7 @@ Files in this repository are organized as follows:
 ├── models
     ├── train_classifier.py         # File to run, calling SQL table, to train the classifier and save model
     
+```
 ## Instructions
 1. Run the following commands in the project's root directory to set up the database and model.
 
@@ -50,4 +54,4 @@ Files in this repository are organized as follows:
 I give credit to [Udacity](https://www.udacity.com/) (part of the Data Science NanoDegree) for making the data
 available from Figure Eight/Appen.
 
-
+![Sample Image](img/sample1.png)
