@@ -1,8 +1,48 @@
 import sys
 
+
 # import libraries
 import pandas as pd
 from sqlalchemy import create_engine
+import nltk
+nltk.download(['stopwords'])
+from nltk.stem import WordNetLemmatizer
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+import re
+
+
+
+def tokenize(text):
+    ''' 
+    Custom tokenizer function:
+        input - text, a string
+        output - a list of strings that have been cleaned, lemmatized,
+            with stopwords and URLs taken out 
+    '''
+    url_regex = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+    detected_urls = re.findall(url_regex, text)
+    
+    # replace each url in text string with placeholder
+    for url in detected_urls:
+        text = text.replace(url, 'urlplaceholder')
+        
+    # tokenize text
+    words = word_tokenize(text.replace("'", ""))
+    
+    # initialise lemmatizer
+    lemmatizer = WordNetLemmatizer()
+
+    # iterate through each token
+    clean_word_ls = []
+    for word in words:
+        if not word in set(stopwords.words('english')):
+            # lemmatize, normalize case, and remove leading/trailing white space
+            clean_word = lemmatizer.lemmatize(word.strip().lower())
+            clean_word_ls.append(clean_word)
+        
+    return clean_word_ls
+
 
 
 def load_data(messages_filepath, categories_filepath):
@@ -31,6 +71,9 @@ def clean_data(df):
     df = pd.concat([df, categories], axis=1)
     # drop duplicates
     df = df.drop_duplicates()
+    
+    # make new column with tokenized/cleaned messages
+    df['clean_message'] = df.message.apply(lambda x: ' '.join(tokenize(x)))
     return df
 
 
