@@ -13,8 +13,9 @@ The dashboard looks like this: \
 
 
 ## Installation and Data
-Requires Python versions 3.\*. Other requirements are available in the `requirements.txt` file. The data was provided
-through Udacity Data Science Nano Degree, by [Figure Eight/Appen](https://appen.com/).
+The data was provided through Udacity Data Science Nano Degree, by [Figure Eight/Appen](https://appen.com/).
+Requires Python versions 3.\*. Other requirements are available in the `requirements.txt` file. Directions for 
+installation of requirements outlined in the [instructions](#instructions) section.
 
 ## Project Motivation
 For this project, I aimed to build and tune a natural language processing pipeline in order to classify new messages into the relevant disaster response categories. The end goal was to create a dashboard/web app where new messages could be manually input and classified, using the classifier trained on the provided training data. 
@@ -38,17 +39,20 @@ Files in this repository (only those specific to the app) are organized as follo
     
 ```
 ## Instructions
-1. Run the following commands in the project's root directory to set up the database and model.
+1. Clone the GitHub repo or download the zip file. In the project's root directory, install all necessary
+    packages at once by running the following command: \
+    `pip install -r requirements.txt`. 
+2. Run the following commands in the project's root directory to set up the database and model.
 
     - To run ETL pipeline that cleans data and stores in database
         `python data/process_data.py data/disaster_messages.csv data/disaster_categories.csv data/DisasterResponse.db`
     - To run ML pipeline that trains classifier and saves
         `python models/train_classifier.py data/DisasterResponse.db models/classifier.pkl`
 
-2. Run the following command in the app's directory to run your web app.
+3. Run the following command in the app's directory to run your web app.
     `python run.py`
 
-3. Go to http://0.0.0.0:3001/
+4. Go to http://0.0.0.0:3001/
 
 
 ## Licensing, Authors, Acknowledgements <a name="licensing"></a>
